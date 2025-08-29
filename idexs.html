@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pastel Calculator UI</title>
+<style>
+  :root{
+    --body-blue: #aee0f4;
+    --body-blue-dark: #8dd0ee;
+    --bezel: #95d3ec;
+    --screen: #eaf8ff;
+    --screen-text: #2a2a2a;
+    --shadow: 0 10px 18px rgba(0,0,0,.12), 0 4px 10px rgba(0,0,0,.08);
+
+    --orange: #ffa24b;
+    --orange-2: #ffb06a;
+
+    --green-1:#8dd6a6;   /* M+ */
+    --green-2:#a8e1b8;   /* M- */
+    --green-3:#b6e8c3;   /* MRC */
+    --green-4:#b9e8b1;   /* GT  */
+    --green-5:#c7f09f;   /* ->  */
+
+    --pastel-y:#ffe28d;
+    --pastel-p:#f5a0c9;
+    --pastel-l:#b4b7ff;
+    --pastel-m:#d6a5ff;
+    --pastel-g:#9be0ff;
+    --pastel-b:#8ad0ff;
+    --pastel-c:#a0ecff;
+
+    --key-size: 72px;      /* change once, all keys resize */
+    --gap: 14px;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    min-height:100svh;
+    display:grid;
+    place-items:center;
+    background:#f3fbff;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  }
+
+  /* Calculator body */
+  .calc{
+    width:min(420px, 92vw);
+    background:linear-gradient(180deg,var(--body-blue),var(--bezel));
+    padding:18px;
+    border-radius:28px;
+    box-shadow: var(--shadow);
+    border:6px solid var(--body-blue-dark);
+  }
+
+  /* Screen */
+  .screen{
+    height:76px;
+    border-radius:16px;
+    background: linear-gradient(180deg,#ffffff,#d8f3ff);
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    padding:10px 16px;
+    color:var(--screen-text);
+    font-family: "Consolas","SFMono-Regular",ui-monospace,monospace;
+    font-size:36px;
+    letter-spacing:6px;
+    box-shadow: inset 0 4px 12px rgba(0,0,0,.08);
+    margin-bottom:16px;
+  }
+
+
+  /* Grid for rows */
+  .row{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--gap);
+    margin-top: var(--gap);
+  }
+
+  /* Top-right 2 buttons row (CE, AC) */
+  .row--top{
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    align-items:center;
+  }
+  .row--top .spacer{grid-column: 1 / span 3;}
+
+  /* Generic key */
+  .key{
+    width:var(--key-size);
+    height:var(--key-size);
+    border-radius:50%;
+    display:grid;place-items:center;
+    font-weight:700;
+    font-size:22px;
+    border:none;
+    cursor:pointer;
+    outline:0;
+    transition: transform .06s ease, filter .06s ease, box-shadow .06s ease;
+    box-shadow: 0 8px 14px rgba(0,0,0,.12), inset 0 -4px 0 rgba(0,0,0,.08);
+    user-select:none;
+  }
+  .key:active{
+    transform: translateY(2px);
+    box-shadow: 0 6px 10px rgba(0,0,0,.10), inset 0 -1px 0 rgba(0,0,0,.05);
+    filter: brightness(.98);
+  }
+
+  /* Rounded-rectangle small keys (CE/AC) */
+  .pill{
+    width: calc(var(--key-size) - 10px);
+    height: calc(var(--key-size) - 26px);
+    border-radius: 16px;
+    font-size:20px;
+  }
+
+  /* Colors */
+  .k-orange{ background: linear-gradient(180deg,var(--orange),var(--orange-2)); color:#fff; }
+  .k-green1{ background: linear-gradient(180deg,#86d89f,var(--green-1)); }
+  .k-green2{ background: linear-gradient(180deg,#9fe7b6,var(--green-2)); }
+  .k-green3{ background: linear-gradient(180deg,#aaeec0,var(--green-3)); }
+  .k-green4{ background: linear-gradient(180deg,#b4f2b3,var(--green-4)); }
+  .k-green5{ background: linear-gradient(180deg,#c9f8a8,var(--green-5)); }
+
+  .k-yellow{ background: linear-gradient(180deg,#ffe89f,var(--pastel-y)); }
+  .k-pink  { background: linear-gradient(180deg,#f7b2d5,var(--pastel-p)); }
+  .k-lilac { background: linear-gradient(180deg,#c2c4ff,var(--pastel-l)); }
+  .k-mauve { background: linear-gradient(180deg,#e1b7ff,var(--pastel-m)); }
+  .k-blue  { background: linear-gradient(180deg,#b1e6ff,var(--pastel-g)); }
+  .k-sky   { background: linear-gradient(180deg,#a7dbff,var(--pastel-b)); }
+  .k-cyan  { background: linear-gradient(180deg,#b6f6ff,var(--pastel-c)); }
+
+  /* Make grid cells center keys nicely */
+  .row > *{ display:flex; justify-content:center; }
+
+  /* Tiny label size tweaks */
+  .small{ font-size:18px; }
+</style>
+</head>
+<body>
+
+  <div class="calc">
+    <div class="screen"></div>
+    
+
+    <!-- CE / AC row (right side) -->
+    <div class="row row--top">
+      <div class="spacer"></div>
+      <div class="pill key k-orange">CE</div>
+      <div class="pill key k-orange">AC</div>
+    </div>
+
+    <!-- Memory / function row (green shades) -->
+    <div class="row">
+      <div class="key k-green1 small">M+</div>
+      <div class="key k-green2 small">M-</div>
+      <div class="key k-green3 small">MRC</div>
+      <div class="key k-green4 small">GT</div>
+      <div class="key k-green5 small">&#8594;</div>
+    </div>
+
+    <!-- 7 8 9 • +/- like yellow row -->
+    <div class="row">
+      <div class="key k-yellow">7</div>
+      <div class="key k-yellow">8</div>
+      <div class="key k-yellow">9</div>
+      <div class="key k-yellow">•</div>
+      <div class="key k-yellow">±</div>
+    </div>
+
+    <!-- 4 5 6 × % (pink + lilac) -->
+    <div class="row">
+      <div class="key k-pink">4</div>
+      <div class="key k-pink">5</div>
+      <div class="key k-pink">6</div>
+      <div class="key k-lilac">×</div>
+      <div class="key k-lilac">%</div>
+    </div>
+
+    <!-- 1 2 3 = MU (mauve) -->
+    <div class="row">
+      <div class="key k-mauve">1</div>
+      <div class="key k-mauve">2</div>
+      <div class="key k-mauve">3</div>
+      <div class="key k-mauve">=</div>
+      <div class="key k-mauve small">MU</div>
+    </div>
+
+    <!-- 0 00 . + menu (blue tones) -->
+    <div class="row">
+      <div class="key k-sky">0</div>
+      <div class="key k-sky">00</div>
+      <div class="key k-cyan">·</div>
+      <div class="key k-blue">+</div>
+      <div class="key k-blue">≡</div>
+    </div>
+  </div>
+
+<script>
+  // Optional: tiny “press” feedback sound-free ripple (pure CSS transform already added)
+  document.querySelectorAll('.key').forEach(btn=>{
+    btn.addEventListener('click', ()=> {
+      // Hook up your calculator logic here later if you want.
+      // For now, just flash the screen with the key text briefly.
+      const scr = document.querySelector('.screen');
+      const prev = scr.textContent;
+      scr.textContent = btn.textContent.slice(0,-1);
+      setTimeout(()=> scr.textContent = prev, 150);
+    });
+  });
+</script>
+</body>
+</html>
